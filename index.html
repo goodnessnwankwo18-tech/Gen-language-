@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<title>Deutsch Daily</title>
+<style>
+:root{--bg:#f5f7fb;--card:#fff;--text:#111827;--muted:#667085;--accent:#111827;--line:#e5e7eb;--ok:#16803c}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+header{background:var(--accent);color:#fff;padding:28px 20px 24px;border-radius:0 0 24px 24px}
+header h1{margin:0 0 6px;font-size:28px}header p{margin:0;color:#d1d5db}
+main{max-width:720px;margin:auto;padding:16px 16px 40px}
+nav{display:flex;gap:8px;overflow:auto;padding:10px 0 14px;position:sticky;top:0;background:var(--bg);z-index:3}
+nav button{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:10px 14px;white-space:nowrap}
+nav button.active{background:var(--accent);color:#fff}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;margin:12px 0;box-shadow:0 2px 10px #00000008}
+.big{font-size:24px;font-weight:700}.small{font-size:14px;color:var(--muted)}
+button.action{width:100%;padding:13px 15px;border:0;border-radius:12px;background:var(--accent);color:#fff;font-weight:700;font-size:15px;margin-top:10px}
+button.secondary{background:#eef0f4;color:var(--text)}
+.row{display:flex;gap:10px}.row button{flex:1}
+.tag{display:inline-block;padding:5px 9px;border-radius:999px;background:#eef0f4;font-size:12px;margin-bottom:10px}
+.choice{width:100%;text-align:left;padding:13px;border:1px solid var(--line);background:#fff;border-radius:12px;margin:6px 0}
+.choice.correct{border-color:var(--ok);background:#effaf2}.choice.wrong{border-color:#c62828;background:#fff1f1}
+.hidden{display:none}.progress{height:8px;background:#e5e7eb;border-radius:99px;overflow:hidden}.progress div{height:100%;background:var(--accent);width:20%}
+input{width:100%;padding:13px;border:1px solid var(--line);border-radius:12px;font-size:16px}
+.chat{display:flex;flex-direction:column;gap:10px}.bubble{max-width:88%;padding:12px 14px;border-radius:16px;background:#f0f2f5}.bubble.me{align-self:flex-end;background:#111827;color:#fff}
+footer{text-align:center;color:var(--muted);font-size:12px;margin-top:24px}
+</style>
+</head>
+<body>
+<header><h1>🇩🇪 Deutsch Daily</h1><p>Learn German with short lessons + realistic conversations.</p></header>
+<main>
+<nav>
+<button class="active" onclick="show('home',this)">Home</button>
+<button onclick="show('lesson',this)">Lesson</button>
+<button onclick="show('talk',this)">Talk to Me</button>
+<button onclick="show('progress',this)">Progress</button>
+</nav>
+
+<section id="home">
+<div class="card">
+<span class="tag">START HERE</span>
+<div class="big">Your first German session</div>
+<p>Learn a few useful phrases, hear them spoken, then practice a real-life situation.</p>
+<button class="action" onclick="showById('lesson')">Start today's lesson →</button>
+</div>
+<div class="card"><b>What we're building</b><p class="small">• Beginner → advanced lessons<br>• Audio for every phrase<br>• Random conversations in different settings<br>• Practice + corrections<br>• Progress tracking</p></div>
+</section>
+
+<section id="lesson" class="hidden">
+<div class="card">
+<span class="tag">LESSON 1 · GREETINGS</span>
+<div class="progress"><div id="bar"></div></div>
+<div id="lessonCard" style="margin-top:18px"></div>
+</div>
+</section>
+
+<section id="talk" class="hidden">
+<div class="card">
+<span class="tag">RANDOM CONVERSATION</span>
+<h2 id="sceneTitle">☕ At a café</h2>
+<p class="small">Imagine someone has just started talking to you. Listen first, then choose what you would say.</p>
+<div class="chat" id="chat"></div>
+<button class="action" onclick="newScene()">🎲 New situation</button>
+</div>
+</section>
+
+<section id="progress" class="hidden">
+<div class="card"><span class="tag">YOUR PROGRESS</span><h2>Beginner</h2><p>Lesson 1</p><div class="progress"><div style="width:20%"></div></div><p class="small">Keep practicing. Your progress will grow as we add more lessons.</p></div>
+</section>
+<footer>Deutsch Daily · Built to work on your phone</footer>
+</main>
+
+<script>
+const lessons=[
+["Hallo!","Hello!"],["Guten Morgen!","Good morning!"],["Wie geht's?","How are you?"],["Mir geht's gut.","I'm doing well."],["Danke!","Thank you!"],["Bis später!","See you later!"]
+];
+let i=0;
+function speak(text){if("speechSynthesis" in window){speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(text);u.lang="de-DE";u.rate=.82;speechSynthesis.speak(u)}}
+function renderLesson(){
+ const [de,en]=lessons[i];
+ document.getElementById("lessonCard").innerHTML=`
+ <div class="small">German</div><div class="big">${de}</div>
+ <div class="small" style="margin-top:7px">${en}</div>
+ <div class="row"><button class="action secondary" onclick="speak('${de}')">🔊 Hear it</button>
+ <button class="action" onclick="nextLesson()">Next →</button></div>`;
+ document.getElementById("bar").style.width=((i+1)/lessons.length*100)+"%";
+}
+function nextLesson(){i=(i+1)%lessons.length;renderLesson()}
+renderLesson();
+
+const scenes=[
+{title:"☕ At a café",start:"Guten Tag! Was möchten Sie bestellen?",opts:["Ich möchte einen Kaffee, bitte.","Ich heiße Kaffee.","Nein, gestern."],answer:0},
+{title:"🛒 At a shop",start:"Kann ich Ihnen helfen?",opts:["Ja, ich suche ein T-Shirt.","Ich bin 21 Uhr.","Danke, ich wohne."],answer:0},
+{title:"🚉 At the station",start:"Entschuldigung, wo ist der Bahnhof?",opts:["Der Bahnhof ist dort.","Ich möchte Milch.","Guten Morgen, ich heiße Anna."],answer:0},
+{title:"🏥 At a clinic",start:"Was fehlt Ihnen?",opts:["Ich habe Kopfschmerzen.","Ich möchte bezahlen.","Der Zug ist schnell."],answer:0}
+];
+let scene=0;
+function newScene(){scene=Math.floor(Math.random()*scenes.length);renderScene()}
+function renderScene(){
+let s=scenes[scene];document.getElementById("sceneTitle").textContent=s.title;
+document.getElementById("chat").innerHTML=`<div class="bubble"><b>Person:</b> ${s.start}<br><button class="action secondary" onclick="speak('${s.start}')">🔊 Listen</button></div>`;
+s.opts.forEach((o,n)=>{let b=document.createElement("button");b.className="choice";b.textContent=o;b.onclick=()=>{document.querySelectorAll(".choice").forEach(x=>x.disabled=true);b.classList.add(n===s.answer?"correct":"wrong");speak(o);if(n!==s.answer)document.getElementById("chat").insertAdjacentHTML("beforeend",`<div class="bubble">Try: <b>${s.opts[s.answer]}</b></div>`);};document.getElementById("chat").appendChild(b)});
+}
+renderScene();
+function show(id,btn){document.querySelectorAll("section").forEach(s=>s.classList.add("hidden"));document.getElementById(id).classList.remove("hidden");document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));btn.classList.add("active")}
+function showById(id){document.querySelectorAll("section").forEach(s=>s.classList.add("hidden"));document.getElementById(id).classList.remove("hidden");document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));document.querySelector('nav button:nth-child(2)').classList.add("active")}
+</script>
+</body>
+</html>
